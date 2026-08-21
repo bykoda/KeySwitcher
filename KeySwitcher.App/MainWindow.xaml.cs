@@ -20,6 +20,7 @@ public partial class MainWindow : Window
 
     public MainWindow()
     {
+        AppLog.Write("Создание главного окна");
         InitializeComponent();
         _viewModel = new MainViewModel(_store); DataContext = _viewModel;
         _whisper = new WhisperService(_store);
@@ -32,9 +33,22 @@ public partial class MainWindow : Window
 
     private void InitializeRuntime()
     {
-        _engine = new KeyboardEngine(Dispatcher, () => _viewModel.Settings); _engine.Start();
-        _hotkeys = new HotkeyManager(this); RegisterHotkeys();
-        CreateTray();
+        try
+        {
+            CreateTray();
+            AppLog.Write("Значок в трее создан");
+            _engine = new KeyboardEngine(Dispatcher, () => _viewModel.Settings);
+            _engine.Start();
+            _hotkeys = new HotkeyManager(this);
+            RegisterHotkeys();
+            AppLog.Write("Перехват клавиатуры и горячие клавиши запущены");
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write("Ошибка запуска фоновых компонентов", ex);
+            _viewModel.Status = "Ошибка запуска: " + ex.Message;
+            MessageBox.Show($"Не удалось запустить фоновые функции:\n\n{ex.Message}\n\nЖурнал:\n{AppLog.FilePath}", "KeySwitcher", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void RegisterHotkeys()
@@ -48,7 +62,7 @@ public partial class MainWindow : Window
             _hotkeys.Register(3, _viewModel.Settings.TranslateHotkey, () => _ = TranslateAsync());
             _hotkeys.Register(4, "Ctrl+Alt+K", () => { _viewModel.Settings.AutoCorrect = !_viewModel.Settings.AutoCorrect; _viewModel.Status = _viewModel.Settings.AutoCorrect ? "Автоисправление включено" : "Автоисправление выключено"; });
         }
-        catch (Exception ex) { _viewModel.Status = "Ошибка горячих клавиш: " + ex.Message; }
+        catch (Exception ex) { AppLog.Write("Ошибка горячих клавиш", ex); _viewModel.Status = "Ошибка горячих клавиш: " + ex.Message; }
     }
 
     private async Task ToggleVoiceAsync()
