@@ -3,6 +3,8 @@ using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using System.Windows;
 using KeySwitcher.Models;
+using WpfClipboard = System.Windows.Clipboard;
+using WpfDataObject = System.Windows.IDataObject;
 
 namespace KeySwitcher.Services;
 
@@ -23,23 +25,23 @@ public sealed class TranslationService
 
     public async Task TranslateSelectionAsync(AppSettings settings, CancellationToken ct = default)
     {
-        IDataObject? backup = null;
-        try { backup = Clipboard.GetDataObject(); } catch { }
+        WpfDataObject? backup = null;
+        try { backup = WpfClipboard.GetDataObject(); } catch { }
         try
         {
-            Clipboard.Clear();
+            WpfClipboard.Clear();
             TextInjector.Chord(0x11, 0x43);
             await Task.Delay(140, ct);
-            if (!Clipboard.ContainsText()) throw new InvalidOperationException("Не удалось получить выделенный текст.");
-            var original = Clipboard.GetText();
+            if (!WpfClipboard.ContainsText()) throw new InvalidOperationException("Не удалось получить выделенный текст.");
+            var original = WpfClipboard.GetText();
             var translated = await TranslateAsync(original, settings, ct);
-            Clipboard.SetText(translated);
+            WpfClipboard.SetText(translated);
             TextInjector.Chord(0x11, 0x56);
             await Task.Delay(120, ct);
         }
         finally
         {
-            if (backup is not null) try { Clipboard.SetDataObject(backup, true); } catch { }
+            if (backup is not null) try { WpfClipboard.SetDataObject(backup, true); } catch { }
         }
     }
 
