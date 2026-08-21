@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Threading;
@@ -21,7 +22,11 @@ public sealed class KeyboardEngine : IDisposable
     }
 
     public string CurrentWord => _word;
-    public void Start() => _hook = NativeMethods.SetWindowsHookEx(NativeMethods.WH_KEYBOARD_LL, _callback, NativeMethods.GetModuleHandle(null), 0);
+    public void Start()
+    {
+        _hook = NativeMethods.SetWindowsHookEx(NativeMethods.WH_KEYBOARD_LL, _callback, NativeMethods.GetModuleHandle(null), 0);
+        if (_hook == 0) throw new Win32Exception(Marshal.GetLastWin32Error(), "Windows не разрешила установить перехватчик клавиатуры");
+    }
 
     public void CorrectCurrentWord()
     {
