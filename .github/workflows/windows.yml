@@ -24,6 +24,19 @@ jobs:
         run: dotnet build KeySwitcher.sln -c Release --no-restore
       - name: Publish portable application
         run: dotnet publish KeySwitcher.App/KeySwitcher.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
+      - name: Runtime smoke test
+        shell: pwsh
+        run: |
+          $process = Start-Process -FilePath ".\publish\KeySwitcher.exe" -ArgumentList "--smoke-test" -PassThru
+          if (-not $process.WaitForExit(15000)) {
+            Stop-Process -Id $process.Id -Force
+            throw "KeySwitcher startup smoke test timed out"
+          }
+          if ($process.ExitCode -ne 0) {
+            $log = Join-Path $env:LOCALAPPDATA "by koda\KeySwitcher\Logs\KeySwitcher.log"
+            if (Test-Path $log) { Get-Content $log }
+            throw "KeySwitcher startup smoke test failed with exit code $($process.ExitCode)"
+          }
       - name: Install Inno Setup
         shell: pwsh
         run: choco install innosetup --no-progress -y
