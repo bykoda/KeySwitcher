@@ -47,7 +47,7 @@ public partial class MainWindow : Window
         {
             AppLog.Write("Ошибка запуска фоновых компонентов", ex);
             _viewModel.Status = "Ошибка запуска: " + ex.Message;
-            MessageBox.Show($"Не удалось запустить фоновые функции:\n\n{ex.Message}\n\nЖурнал:\n{AppLog.FilePath}", "KeySwitcher", MessageBoxButton.OK, MessageBoxImage.Error);
+            System.Windows.MessageBox.Show($"Не удалось запустить фоновые функции:\n\n{ex.Message}\n\nЖурнал:\n{AppLog.FilePath}", "KeySwitcher", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
