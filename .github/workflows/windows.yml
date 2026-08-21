@@ -1,0 +1,41 @@
+name: Build Windows 11
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, "codex/**" ]
+
+jobs:
+  build:
+    runs-on: windows-2025
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          cache: true
+          cache-dependency-path: KeySwitcher.App/KeySwitcher.App.csproj
+      - name: Restore
+        run: dotnet restore KeySwitcher.sln
+      - name: Build
+        run: dotnet build KeySwitcher.sln -c Release --no-restore
+      - name: Publish portable application
+        run: dotnet publish KeySwitcher.App/KeySwitcher.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress -y
+      - name: Build installer
+        shell: pwsh
+        run: '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\KeySwitcher.iss'
+      - name: Package portable version
+        shell: pwsh
+        run: Compress-Archive -Path publish\* -DestinationPath KeySwitcher-0.5.0-Portable-win-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: KeySwitcher-Windows-11
+          path: |
+            installer/output/KeySwitcher-0.5.0-Setup.exe
+            KeySwitcher-0.5.0-Portable-win-x64.zip
+          if-no-files-found: error
