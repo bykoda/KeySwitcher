@@ -22,7 +22,7 @@ public partial class App : System.Windows.Application
             if (!first)
             {
                 AppLog.Write("Запуск отменён: другой экземпляр уже работает");
-                MessageBox.Show("KeySwitcher уже запущен. Проверьте скрытые значки в области уведомлений или завершите KeySwitcher.exe в Диспетчере задач.", "KeySwitcher", MessageBoxButton.OK, MessageBoxImage.Information);
+                System.Windows.MessageBox.Show("KeySwitcher уже запущен. Проверьте скрытые значки в области уведомлений или завершите KeySwitcher.exe в Диспетчере задач.", "KeySwitcher", MessageBoxButton.OK, MessageBoxImage.Information);
                 Shutdown();
                 return;
             }
@@ -49,14 +49,14 @@ public partial class App : System.Windows.Application
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         AppLog.Write("Необработанная ошибка интерфейса", e.Exception);
-        MessageBox.Show($"Произошла ошибка:\n\n{e.Exception.Message}\n\nЖурнал:\n{AppLog.FilePath}", "KeySwitcher", MessageBoxButton.OK, MessageBoxImage.Error);
+        System.Windows.MessageBox.Show($"Произошла ошибка:\n\n{e.Exception.Message}\n\nЖурнал:\n{AppLog.FilePath}", "KeySwitcher", MessageBoxButton.OK, MessageBoxImage.Error);
         e.Handled = true;
     }
 
     private void Fatal(string title, Exception ex)
     {
         AppLog.Write(title, ex);
-        MessageBox.Show($"{title}:\n\n{ex.Message}\n\nЖурнал:\n{AppLog.FilePath}", "KeySwitcher", MessageBoxButton.OK, MessageBoxImage.Error);
+        System.Windows.MessageBox.Show($"{title}:\n\n{ex.Message}\n\nЖурнал:\n{AppLog.FilePath}", "KeySwitcher", MessageBoxButton.OK, MessageBoxImage.Error);
         Shutdown(1);
     }
 
