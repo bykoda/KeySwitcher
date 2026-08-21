@@ -33,7 +33,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             _store.Save(Settings); StartupManager.Set(Settings.StartWithWindows);
             Status = "Настройки сохранены"; SettingsSaved?.Invoke();
         }
-        catch (Exception ex) { Status = "Ошибка: " + ex.Message; MessageBox.Show(ex.Message, "KeySwitcher", MessageBoxButton.OK, MessageBoxImage.Error); }
+        catch (Exception ex) { Status = "Ошибка: " + ex.Message; System.Windows.MessageBox.Show(ex.Message, "KeySwitcher", MessageBoxButton.OK, MessageBoxImage.Error); }
     }
 
     private void Changed([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new(name));
